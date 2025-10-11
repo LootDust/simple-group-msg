@@ -12,13 +12,15 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.event.ServerChatEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod;
 
 import java.util.HashMap;
 import java.util.UUID;
 
 
+@Mod.EventBusSubscriber
 public class GroupMsgPlugin implements VoicechatPlugin {
-    private static VoicechatServerApi api;
+    VoicechatServerApi api;
     public static HashMap<UUID, UUID> playerGroupStatus;
     public static HashMap<UUID, Type> groupTypes;
 
@@ -63,7 +65,7 @@ public class GroupMsgPlugin implements VoicechatPlugin {
     }
 
     @SubscribeEvent(priority = EventPriority.LOW)
-    public static void onServerChatEvent(ServerChatEvent event) {
+    void onServerChatEvent(ServerChatEvent event) {
         ServerPlayer player = event.getPlayer();
         ServerLevel server = event.getPlayer().serverLevel();
         VoicechatConnection connection = api.getConnectionOf(player.getUUID());

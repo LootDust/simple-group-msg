@@ -47,7 +47,6 @@ public class SimpleGroupMsg {
     {
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
         MinecraftForge.EVENT_BUS.register(this);
-        modEventBus.addListener(GroupMsgPlugin::onServerChatEvent);
 
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, Config.SPEC);
     }
