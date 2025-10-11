@@ -4,6 +4,7 @@ import de.maxhenkel.voicechat.api.*;
 import de.maxhenkel.voicechat.api.events.*;
 import de.maxhenkel.voicechat.api.Group.Type;
 import de.maxhenkel.voicechat.plugins.impl.ServerPlayerImpl;
+import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.ChatType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.OutgoingChatMessage;
@@ -79,7 +80,11 @@ public class GroupMsgPlugin implements VoicechatPlugin {
                             return;
                         }
                         if (groupId == group.getId()) {
-                            ((ServerPlayer)server.getPlayerByUUID(hearer)).sendChatMessage((OutgoingChatMessage) Component.literal(String.format("[%s] <%s> ", group.getName(), player.getDisplayName())).append(event.getMessage()), true, ChatType.bind(ChatType.CHAT, player));
+                            ((ServerPlayer)server.getPlayerByUUID(hearer)).displayClientMessage(
+                                    Component.literal(String.format("[%s] ", group.getName())).withStyle(ChatFormatting.GREEN)
+                                            .append(Component.literal(String.format("<%s> ", player.getDisplayName()))
+                                            .append(event.getMessage())),
+                            false);
                         }
                     });
                 } else if (type.equals(Type.OPEN)) {
@@ -88,7 +93,11 @@ public class GroupMsgPlugin implements VoicechatPlugin {
                             return;
                         }
                         if (groupTypes.get(groupId) != Type.ISOLATED) {
-                            ((ServerPlayer)server.getPlayerByUUID(hearer)).sendChatMessage((OutgoingChatMessage) Component.literal(String.format("[%s] <%s> ", group.getName(), player.getDisplayName())).append(event.getMessage()), true, ChatType.bind(ChatType.CHAT, player));
+                            ((ServerPlayer)server.getPlayerByUUID(hearer)).displayClientMessage(
+                                    Component.literal(String.format("[%s] ", group.getName())).withStyle(ChatFormatting.GREEN)
+                                            .append(Component.literal(String.format("[%s] <%s> ", group.getName(), player.getDisplayName()))
+                                            .append(event.getMessage())),
+                            false);
                         }
                     });
                 }
@@ -98,7 +107,8 @@ public class GroupMsgPlugin implements VoicechatPlugin {
                         return;
                     }
                     if (groupTypes.get(groupId) != Type.ISOLATED) {
-                        ((ServerPlayer)server.getPlayerByUUID(hearer)).sendChatMessage((OutgoingChatMessage) Component.literal(String.format("<%s> ", group.getName(), player.getDisplayName())).append(event.getMessage()), true, ChatType.bind(ChatType.CHAT, player));
+                        ((ServerPlayer)server.getPlayerByUUID(hearer)).displayClientMessage(
+                                Component.literal(String.format("<%s> ", player.getDisplayName())).append(event.getMessage()), false);
                     }
                 });
             }

@@ -28,13 +28,13 @@ public class ShoutCommand {
                                         return;
                                     }
                                     if (groupTypes.get(groupId) != Group.Type.ISOLATED) {
-                                        ((ServerPlayer) server.getPlayerByUUID(hearer)).sendChatMessage((OutgoingChatMessage) Component.literal(String.format("<%s> ", player.getDisplayName())).append(message), true, ChatType.bind(ChatType.CHAT, player));
+                                        ((ServerPlayer) server.getPlayerByUUID(hearer)).displayClientMessage(Component.literal(String.format("<%s> ", player.getDisplayName())).append(message), false);
                                     }
                                 });
                             } else {
                                 playerGroupStatus.forEach((hearer, groupId) -> {
                                     if (groupTypes.get(groupId) != Group.Type.ISOLATED) {
-                                        ((ServerPlayer) server.getPlayerByUUID(hearer)).sendChatMessage((OutgoingChatMessage) Component.literal(String.format("<%s> ", context.getSource().getDisplayName())).append(message), true, ChatType.bind(ChatType.CHAT, context.getSource()));
+                                        ((ServerPlayer) server.getPlayerByUUID(hearer)).displayClientMessage(Component.literal(String.format("<%s> ", context.getSource().getDisplayName())).append(message), false);
                                     }
                                 });
                             }
