@@ -5,9 +5,7 @@ import de.maxhenkel.voicechat.api.events.*;
 import de.maxhenkel.voicechat.api.Group.Type;
 import de.maxhenkel.voicechat.plugins.impl.ServerPlayerImpl;
 import net.minecraft.ChatFormatting;
-import net.minecraft.network.chat.ChatType;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.OutgoingChatMessage;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.event.ServerChatEvent;
@@ -17,7 +15,6 @@ import net.minecraftforge.fml.common.Mod;
 
 import java.util.HashMap;
 import java.util.UUID;
-import java.util.logging.Logger;
 
 
 @Mod.EventBusSubscriber
@@ -81,7 +78,7 @@ public class GroupMsgPlugin implements VoicechatPlugin {
                             return;
                         }
                         if (groupId == group.getId()) {
-                            ((ServerPlayer)server.getPlayerByUUID(hearer)).displayClientMessage(
+                            server.getPlayerByUUID(hearer).displayClientMessage(
                                     Component.literal(String.format("[%s] ", group.getName())).withStyle(ChatFormatting.GREEN)
                                             .append(Component.literal(String.format("<%s> ", player.getDisplayName()))
                                             .append(event.getMessage())),
@@ -94,7 +91,7 @@ public class GroupMsgPlugin implements VoicechatPlugin {
                             return;
                         }
                         if (groupTypes.get(groupId) != Type.ISOLATED) {
-                            ((ServerPlayer)server.getPlayerByUUID(hearer)).displayClientMessage(
+                            server.getPlayerByUUID(hearer).displayClientMessage(
                                     Component.literal(String.format("[%s] ", group.getName())).withStyle(ChatFormatting.GREEN)
                                             .append(Component.literal(String.format("[%s] <%s> ", group.getName(), player.getDisplayName()))
                                             .append(event.getMessage())),
@@ -108,13 +105,13 @@ public class GroupMsgPlugin implements VoicechatPlugin {
                         return;
                     }
                     if (groupTypes.get(groupId) != Type.ISOLATED) {
-                        ((ServerPlayer)server.getPlayerByUUID(hearer)).displayClientMessage(
+                        server.getPlayerByUUID(hearer).displayClientMessage(
                                 Component.literal(String.format("<%s> ", player.getDisplayName())).append(event.getMessage()), false);
                     }
                 });
             }
         }
         event.setCanceled(true);
-        SimpleGroupMsg.LOGGER.info("Event is canceled? " + String.valueOf(event.isCanceled()));
+        SimpleGroupMsg.LOGGER.info("Event is canceled? " + event.isCanceled());
     }
 }
