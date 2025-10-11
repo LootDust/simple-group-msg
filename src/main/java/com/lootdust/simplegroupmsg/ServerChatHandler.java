@@ -17,9 +17,9 @@ public class ServerChatHandler {
     public void onServerChatEvent(ServerChatEvent event) {
         ServerPlayer player = event.getPlayer();
         ServerLevel server = event.getPlayer().serverLevel();
-        VoicechatConnection connection = api.getConnectionOf(player.getUUID());
+        VoicechatConnection connection = sapi.getConnectionOf(player.getUUID());
         if (connection != null) {
-            Group group = api.getConnectionOf(player.getUUID()).getGroup();
+            Group group = sapi.getConnectionOf(player.getUUID()).getGroup();
             if (group != null) {
                 Group.Type type = group.getType();
                 if (type.equals(Group.Type.ISOLATED) || type.equals(Group.Type.NORMAL)) {

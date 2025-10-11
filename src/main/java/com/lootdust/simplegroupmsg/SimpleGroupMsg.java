@@ -50,6 +50,7 @@ public class SimpleGroupMsg {
         MinecraftForge.EVENT_BUS.register(new ServerChatHandler());
 
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, Config.SPEC);
+        LOGGER.info("AAA SGM Loaded.");
     }
 
     @SubscribeEvent

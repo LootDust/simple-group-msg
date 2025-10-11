@@ -4,22 +4,14 @@ import de.maxhenkel.voicechat.api.*;
 import de.maxhenkel.voicechat.api.events.*;
 import de.maxhenkel.voicechat.api.Group.Type;
 import de.maxhenkel.voicechat.plugins.impl.ServerPlayerImpl;
-import net.minecraft.ChatFormatting;
-import net.minecraft.network.chat.Component;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraftforge.event.ServerChatEvent;
-import net.minecraftforge.eventbus.api.EventPriority;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
 
 import java.util.HashMap;
 import java.util.UUID;
 
-
-@Mod.EventBusSubscriber
 public class GroupMsgPlugin implements VoicechatPlugin {
-    public static VoicechatServerApi api;
+    public static VoicechatApi api;
+    public static VoicechatServerApi sapi;
     public static HashMap<UUID, UUID> playerGroupStatus;
     public static HashMap<UUID, Type> groupTypes;
 
@@ -30,7 +22,7 @@ public class GroupMsgPlugin implements VoicechatPlugin {
 
     @Override
     public void initialize(VoicechatApi api) {
-
+        GroupMsgPlugin.api = api;
     }
 
     @Override
@@ -43,17 +35,21 @@ public class GroupMsgPlugin implements VoicechatPlugin {
     }
 
     private void onServerStarted(VoicechatServerStartedEvent event) {
-        api = event.getVoicechat();
-        api.getGroups().forEach((group -> groupTypes.put(group.getId(), group.getType())));
-        SimpleGroupMsg.LOGGER.info("Api is null? " + (api == null));
+        sapi = event.getVoicechat();
+        sapi.getGroups().forEach((group -> groupTypes.put(group.getId(), group.getType())));
+        SimpleGroupMsg.LOGGER.info("Api is null? " + (sapi == null));
     }
 
     private void onPlayerJoinGroup(JoinGroupEvent event) {
-        playerGroupStatus.put(((ServerPlayerImpl) event.getConnection().getPlayer()).getRealServerPlayer().getUUID(), event.getGroup().getId());
+        ServerPlayer player = ((ServerPlayerImpl) event.getConnection().getPlayer()).getRealServerPlayer();
+        playerGroupStatus.put(player.getUUID(), event.getGroup().getId());
+        SimpleGroupMsg.LOGGER.info("Player " + player.getDisplayName() + " joined group " + event.getGroup().getName());
     }
 
     private void onPlayerLeaveGroup(LeaveGroupEvent event) {
-        playerGroupStatus.remove(((ServerPlayerImpl) event.getConnection().getPlayer()).getRealServerPlayer().getUUID());
+        ServerPlayer player = ((ServerPlayerImpl) event.getConnection().getPlayer()).getRealServerPlayer();
+        playerGroupStatus.remove(player.getUUID());
+        SimpleGroupMsg.LOGGER.info("Player " + player.getDisplayName() + " left group " + event.getGroup().getName());
     }
 
     private void onGroupCreate(CreateGroupEvent event) {
