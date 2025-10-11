@@ -16,8 +16,8 @@ import java.util.UUID;
 
 public class GroupMsgPlugin implements VoicechatPlugin {
     VoicechatServerApi api;
-    HashMap<ServerPlayer, UUID> playerGroupStatus;
-    HashMap<UUID, Type> groupTypes;
+    public static HashMap<ServerPlayer, UUID> playerGroupStatus;
+    public static HashMap<UUID, Type> groupTypes;
 
     @Override
     public String getPluginId() {
@@ -70,14 +70,14 @@ public class GroupMsgPlugin implements VoicechatPlugin {
                 if (type.equals(Type.ISOLATED) || type.equals(Type.NORMAL)) {
                     playerGroupStatus.forEach((hearer, groupId) -> {
                         if (groupId == group.getId()) {
-                            hearer.sendSystemMessage(Component.literal(String.format("[%s] ", group.getName())).append(event.getMessage()), false);
+                            hearer.sendSystemMessage(Component.literal(String.format("[%s] %s ", group.getName(), player.getDisplayName())).append(event.getMessage()), false);
                         }
                     });
                     event.setCanceled(true);
                 } else if (type.equals(Type.OPEN)) {
                     playerGroupStatus.forEach((hearer, groupId) -> {
                         if (groupTypes.get(groupId) != Type.ISOLATED) {
-                            hearer.sendSystemMessage(Component.literal(String.format("[%s] ", group.getName())).append(event.getMessage()), false);
+                            hearer.sendSystemMessage(Component.literal(String.format("[%s] %s ", group.getName(), player.getDisplayName())).append(event.getMessage()), false);
                         }
                     });
                     event.setCanceled(true);
@@ -85,7 +85,7 @@ public class GroupMsgPlugin implements VoicechatPlugin {
             } else {
                 playerGroupStatus.forEach((hearer, groupId) -> {
                     if (groupTypes.get(groupId) != Type.ISOLATED) {
-                        hearer.sendSystemMessage(event.getMessage(), false);
+                        hearer.sendSystemMessage(Component.literal(String.format("%s ", player.getDisplayName())).append(event.getMessage()), false);
                     }
                 });
                 event.setCanceled(true);
