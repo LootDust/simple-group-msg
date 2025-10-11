@@ -4,7 +4,10 @@ import de.maxhenkel.voicechat.api.*;
 import de.maxhenkel.voicechat.api.events.*;
 import de.maxhenkel.voicechat.api.Group.Type;
 import de.maxhenkel.voicechat.plugins.impl.ServerPlayerImpl;
+import net.minecraft.network.chat.ChatType;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.OutgoingChatMessage;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.event.ServerChatEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
@@ -16,7 +19,7 @@ import java.util.UUID;
 
 public class GroupMsgPlugin implements VoicechatPlugin {
     VoicechatServerApi api;
-    public static HashMap<ServerPlayer, UUID> playerGroupStatus;
+    public static HashMap<UUID, UUID> playerGroupStatus;
     public static HashMap<UUID, Type> groupTypes;
 
     @Override
@@ -44,11 +47,11 @@ public class GroupMsgPlugin implements VoicechatPlugin {
     }
 
     private void onPlayerJoinGroup(JoinGroupEvent event) {
-        playerGroupStatus.put(((ServerPlayerImpl) event.getConnection().getPlayer()).getRealServerPlayer(),event.getGroup().getId());
+        playerGroupStatus.put(((ServerPlayerImpl) event.getConnection().getPlayer()).getRealServerPlayer().getUUID(), event.getGroup().getId());
     }
 
     private void onPlayerLeaveGroup(LeaveGroupEvent event) {
-        playerGroupStatus.remove(((ServerPlayerImpl) event.getConnection().getPlayer()).getRealServerPlayer());
+        playerGroupStatus.remove(((ServerPlayerImpl) event.getConnection().getPlayer()).getRealServerPlayer().getUUID());
     }
 
     private void onGroupCreate(CreateGroupEvent event) {
@@ -59,9 +62,10 @@ public class GroupMsgPlugin implements VoicechatPlugin {
         groupTypes.remove(event.getGroup().getId());
     }
 
-    @SubscribeEvent(priority = EventPriority.LOWEST)
+    @SubscribeEvent(priority = EventPriority.LOW)
     void onServerChatEvent(ServerChatEvent event) {
         ServerPlayer player = event.getPlayer();
+        ServerLevel server = event.getPlayer().serverLevel();
         VoicechatConnection connection = api.getConnectionOf(player.getUUID());
         if (connection != null) {
             Group group = api.getConnectionOf(player.getUUID()).getGroup();
@@ -69,26 +73,32 @@ public class GroupMsgPlugin implements VoicechatPlugin {
                 Type type = group.getType();
                 if (type.equals(Type.ISOLATED) || type.equals(Type.NORMAL)) {
                     playerGroupStatus.forEach((hearer, groupId) -> {
+                        if (player.getUUID() == hearer) {
+                            return;
+                        }
                         if (groupId == group.getId()) {
-                            hearer.sendSystemMessage(Component.literal(String.format("[%s] %s ", group.getName(), player.getDisplayName())).append(event.getMessage()), false);
+                            ((ServerPlayer)server.getPlayerByUUID(hearer)).sendChatMessage((OutgoingChatMessage) Component.literal(String.format("[%s] <%s> ", group.getName(), player.getDisplayName())).append(event.getMessage()), true, ChatType.bind(ChatType.CHAT, player));
                         }
                     });
-                    event.setCanceled(true);
                 } else if (type.equals(Type.OPEN)) {
                     playerGroupStatus.forEach((hearer, groupId) -> {
+                        if (player.getUUID() == hearer) {
+                            return;
+                        }
                         if (groupTypes.get(groupId) != Type.ISOLATED) {
-                            hearer.sendSystemMessage(Component.literal(String.format("[%s] %s ", group.getName(), player.getDisplayName())).append(event.getMessage()), false);
+                            ((ServerPlayer)server.getPlayerByUUID(hearer)).sendChatMessage((OutgoingChatMessage) Component.literal(String.format("[%s] <%s> ", group.getName(), player.getDisplayName())).append(event.getMessage()), true, ChatType.bind(ChatType.CHAT, player));
                         }
                     });
-                    event.setCanceled(true);
                 }
             } else {
                 playerGroupStatus.forEach((hearer, groupId) -> {
+                    if (player.getUUID() == hearer) {
+                        return;
+                    }
                     if (groupTypes.get(groupId) != Type.ISOLATED) {
-                        hearer.sendSystemMessage(Component.literal(String.format("%s ", player.getDisplayName())).append(event.getMessage()), false);
+                        ((ServerPlayer)server.getPlayerByUUID(hearer)).sendChatMessage((OutgoingChatMessage) Component.literal(String.format("<%s> ", group.getName(), player.getDisplayName())).append(event.getMessage()), true, ChatType.bind(ChatType.CHAT, player));
                     }
                 });
-                event.setCanceled(true);
             }
         }
         event.setCanceled(true);
