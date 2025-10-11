@@ -18,13 +18,13 @@ import java.util.UUID;
 
 
 public class GroupMsgPlugin implements VoicechatPlugin {
-    VoicechatServerApi api;
+    private static VoicechatServerApi api;
     public static HashMap<UUID, UUID> playerGroupStatus;
     public static HashMap<UUID, Type> groupTypes;
 
     @Override
     public String getPluginId() {
-        return "simple_group_msg";
+        return SimpleGroupMsg.MODID;
     }
 
     @Override
@@ -63,7 +63,7 @@ public class GroupMsgPlugin implements VoicechatPlugin {
     }
 
     @SubscribeEvent(priority = EventPriority.LOW)
-    void onServerChatEvent(ServerChatEvent event) {
+    public static void onServerChatEvent(ServerChatEvent event) {
         ServerPlayer player = event.getPlayer();
         ServerLevel server = event.getPlayer().serverLevel();
         VoicechatConnection connection = api.getConnectionOf(player.getUUID());
