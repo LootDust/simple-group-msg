@@ -19,7 +19,7 @@ import java.util.UUID;
 
 @Mod.EventBusSubscriber
 public class GroupMsgPlugin implements VoicechatPlugin {
-    VoicechatServerApi api;
+    public static VoicechatServerApi api;
     public static HashMap<UUID, UUID> playerGroupStatus;
     public static HashMap<UUID, Type> groupTypes;
 
