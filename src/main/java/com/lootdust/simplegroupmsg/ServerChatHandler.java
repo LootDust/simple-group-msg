@@ -15,6 +15,8 @@ import static com.lootdust.simplegroupmsg.GroupMsgPlugin.*;
 public class ServerChatHandler {
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public void onServerChatEvent(ServerChatEvent event) {
+        SimpleGroupMsg.LOGGER.info(playerGroupStatus.toString());
+        SimpleGroupMsg.LOGGER.info(groupTypes.toString());
         ServerPlayer player = event.getPlayer();
         ServerLevel server = event.getPlayer().serverLevel();
         VoicechatConnection connection = sapi.getConnectionOf(player.getUUID());
