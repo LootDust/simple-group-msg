@@ -18,6 +18,17 @@ version = mod_version
 group = mod_group_id
 
 repositories {
+    maven {
+        name = "SimpleVoiceChat"
+        url = "https://maven.maxhenkel.de/repository/public"
+    }
+    maven {
+        name = "Modrinth"
+        url = "https://api.modrinth.com/maven"
+        content {
+            includeGroup "maven.modrinth"
+        }
+    }
     mavenLocal()
 }
 
@@ -140,6 +151,9 @@ dependencies {
     // For more info:
     // http://www.gradle.org/docs/current/userguide/artifact_dependencies_tutorial.html
     // http://www.gradle.org/docs/current/userguide/dependency_management.html
+
+    implementation "de.maxhenkel.voicechat:voicechat-api:${voicechat_api_version}"
+    implementation "maven.modrinth:simple-voice-chat:forge-1.20.1-${voicechat_version}"
 }
 
 // Uncomment the lines below if you wish to configure mixin. The mixin file should be named modid.mixins.json.
@@ -174,7 +188,8 @@ var generateModMetadata = tasks.register("generateModMetadata", ProcessResources
             mod_license              : mod_license,
             mod_version              : mod_version,
             mod_authors              : mod_authors,
-            mod_description          : mod_description
+            mod_description          : mod_description,
+            voicechat_version        : voicechat_version
     ]
     inputs.properties replaceProperties
     expand replaceProperties

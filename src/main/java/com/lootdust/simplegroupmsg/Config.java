@@ -1,4 +1,4 @@
-package com.example.examplemod;
+package com.lootdust.simplegroupmsg;
 
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
@@ -14,11 +14,12 @@ import java.util.stream.Collectors;
 
 // An example config class. This is not required, but it's a good idea to have one to keep your config organized.
 // Demonstrates how to use Forge's config APIs
-@Mod.EventBusSubscriber(modid = ExampleMod.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
+@Mod.EventBusSubscriber(modid = SimpleGroupMsg.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class Config
 {
     private static final ForgeConfigSpec.Builder BUILDER = new ForgeConfigSpec.Builder();
 
+    /*
     private static final ForgeConfigSpec.BooleanValue LOG_DIRT_BLOCK = BUILDER
             .comment("Whether to log the dirt block on common setup")
             .define("logDirtBlock", true);
@@ -59,5 +60,17 @@ public class Config
         items = ITEM_STRINGS.get().stream()
                 .map(itemName -> BuiltInRegistries.ITEM.get(new ResourceLocation(itemName)))
                 .collect(Collectors.toSet());
+    }*/
+    private static final ForgeConfigSpec.BooleanValue GROUP_MSG_WITHOUT_COMMAND = BUILDER
+            .comment("")
+            .define("group_msg_without_command", true);
+
+    static final ForgeConfigSpec SPEC = BUILDER.build();
+
+    public static boolean groupMsgWithoutCommand;
+
+    @SubscribeEvent
+    static void onLoad(final ModConfigEvent event) {
+        groupMsgWithoutCommand = GROUP_MSG_WITHOUT_COMMAND.get();
     }
 }
