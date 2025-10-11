@@ -1,8 +1,10 @@
 package com.lootdust.simplegroupmsg;
 
 import com.mojang.logging.LogUtils;
+import de.maxhenkel.voicechat.Voicechat;
 import de.maxhenkel.voicechat.api.ForgeVoicechatPlugin;
 import de.maxhenkel.voicechat.api.Group;
+import de.maxhenkel.voicechat.voice.server.ServerVoiceEvents;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.server.level.ServerPlayer;
@@ -43,18 +45,20 @@ public class SimpleGroupMsg {
     public static final String MODID = "simplegroupmsg";
     public static final Logger LOGGER = LogUtils.getLogger();
 
+    public static ServerVoiceEvents voicechatServer;
+
     public SimpleGroupMsg()
     {
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
         MinecraftForge.EVENT_BUS.register(this);
         MinecraftForge.EVENT_BUS.register(new ServerChatHandler());
 
-        ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, Config.SPEC);
+        //ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, Config.SPEC);
         LOGGER.info("AAA SGM Loaded.");
     }
 
     @SubscribeEvent
     public static void registerCommand(RegisterCommandsEvent event) {
-        ShoutCommand.register(event.getDispatcher());
+        //ShoutCommand.register(event.getDispatcher());
     }
 }
