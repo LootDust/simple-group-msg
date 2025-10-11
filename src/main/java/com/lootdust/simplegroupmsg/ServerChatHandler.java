@@ -1,5 +1,6 @@
 package com.lootdust.simplegroupmsg;
 
+import com.google.common.base.Predicates;
 import com.mojang.brigadier.Message;
 import de.maxhenkel.voicechat.api.Group;
 import de.maxhenkel.voicechat.voice.common.PlayerState;
@@ -14,13 +15,27 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
 
+@SuppressWarnings("CallToPrintStackTrace")
 public class ServerChatHandler {
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public void onServerChatEvent(ServerChatEvent event) {
+        boolean should_cancel_it = true;
+
+        if (SimpleGroupMsg.voicechatServer == null) {
+            SimpleGroupMsg.LOGGER.warn("Cannot get voicechat server event! Is it initialized?");
+            return;
+        }
+
+        if (SimpleGroupMsg.voicechatServer.getServer() == null) {
+            SimpleGroupMsg.LOGGER.warn("Cannot get voicechat server! Is it initialized?");
+            return;
+        }
+
         ServerPlayer speaker = event.getPlayer();
         Message message = event.getMessage();
 
@@ -29,27 +44,64 @@ public class ServerChatHandler {
 
         if (isPlayerInGroup(speaker)) {
             Group.Type speakerGroupType = getPlayerGroupType(speaker);
-            if (speakerGroupType == null || speakerGroupType == Group.Type.OPEN) {
-                List<ServerPlayer> hearers = getPlayerExceptIsolated(speaker);
-                if (hearers != null) {
-                    for (ServerPlayer hearer : hearers) {
-                        hearer.sendSystemMessage(Component.literal(String.format("[%s] ", getPlayerGroupName(speaker))).withStyle(ChatFormatting.GREEN)
-                                .append(Component.literal(String.format("<%s> ", speaker.getDisplayName()))
-                                .append(Component.literal(message.getString()))));
+            if (speakerGroupType == null) {
+                should_cancel_it = false;
+            }
+            if (speakerGroupType == Group.Type.OPEN) {
+                List<ServerPlayer> members = getGroupMembers(speaker);
+                if (members != null) {
+                    for (ServerPlayer member : members) {
+                        member.sendSystemMessage(Component.literal(String.format("[%s] ", getPlayerGroupName(speaker))).withStyle(ChatFormatting.GREEN)
+                                .append(Component.literal(String.format("<%s> ", speaker.getName().getString())).withStyle(ChatFormatting.WHITE)
+                                        .append(Component.literal(message.getString())
+                                        )
+                                    )
+                                );
                     }
+                } else {
+                    should_cancel_it = false;
                 }
-            } else {
+                List<ServerPlayer> hearers = getPlayerExceptIsolatedAndMember(speaker);
+                if (hearers != null && should_cancel_it) {
+                    for (ServerPlayer hearer : hearers) {
+                        hearer.sendSystemMessage(Component.literal(String.format("<%s> ", speaker.getName().getString()))
+                                        .append(Component.literal(message.getString())));
+                    }
+                } else {
+                    should_cancel_it = false;
+                }
+            } else if (speakerGroupType == Group.Type.NORMAL || speakerGroupType == Group.Type.ISOLATED) {
                 List<ServerPlayer> hearers = getGroupMembers(speaker);
                 if (hearers != null) {
                     for (ServerPlayer hearer : hearers) {
                         hearer.sendSystemMessage(Component.literal(String.format("[%s] ", getPlayerGroupName(speaker))).withStyle(ChatFormatting.GREEN)
-                                .append(Component.literal(String.format("<%s> ", speaker.getDisplayName()))
-                                .append(Component.literal(message.getString()))));
+                                    .append(Component.literal(String.format("<%s> ", speaker.getName().getString())).withStyle(ChatFormatting.WHITE)
+                                        .append(Component.literal(message.getString())
+                                        )
+                                    )
+                                );
                     }
+                } else {
+                    should_cancel_it = false;
+                }
+            } else {
+                for (ServerPlayer hearer : speaker.serverLevel().getPlayers(Predicates.alwaysTrue())) {
+                    hearer.sendSystemMessage(Component.literal(String.format("<%s> ", speaker.getName().getString()))
+                            .append(Component.literal(message.getString())));
                 }
             }
+        } else {
+            List<ServerPlayer> hearers = getPlayerExceptIsolated(speaker);
+            if (hearers != null) {
+                for (ServerPlayer hearer : hearers) {
+                    hearer.sendSystemMessage(Component.literal(String.format("<%s> ", speaker.getName().getString()))
+                            .append(Component.literal(message.getString())));
+                }
+            } else {
+                should_cancel_it = false;
+            }
         }
-        event.setCanceled(true);
+        if (should_cancel_it) event.setCanceled(true);
     }
 
     private boolean isPlayerInGroup(ServerPlayer player) {
@@ -57,6 +109,8 @@ public class ServerChatHandler {
             PlayerStateManager psM = SimpleGroupMsg.voicechatServer.getServer().getPlayerStateManager();
             return psM.getState(player.getUUID()).hasGroup();
         } catch (NullPointerException e) {
+            SimpleGroupMsg.LOGGER.warn("NullPointerException occured! Is Voicechat server not initialized?");
+            SimpleGroupMsg.LOGGER.warn(Arrays.toString(e.getStackTrace()));
             return false;
         }
     }
@@ -67,6 +121,8 @@ public class ServerChatHandler {
             ServerGroupManager sgM = SimpleGroupMsg.voicechatServer.getServer().getGroupManager();
             return sgM.getGroup(psM.getState(player.getUUID()).getGroup()).getName();
         } catch (NullPointerException e) {
+            SimpleGroupMsg.LOGGER.warn("NullPointerException occured! Is Voicechat server not initialized?");
+            SimpleGroupMsg.LOGGER.warn(Arrays.toString(e.getStackTrace()));
             return "Unknown Group";
         }
     }
@@ -78,6 +134,8 @@ public class ServerChatHandler {
             ServerGroupManager sgM = SimpleGroupMsg.voicechatServer.getServer().getGroupManager();
             return sgM.getGroup(psM.getState(player.getUUID()).getGroup()).getType();
         } catch (NullPointerException e) {
+            SimpleGroupMsg.LOGGER.warn("NullPointerException occured! Is Voicechat server not initialized?");
+            SimpleGroupMsg.LOGGER.warn(Arrays.toString(e.getStackTrace()));
             return null;
         }
     }
@@ -97,6 +155,8 @@ public class ServerChatHandler {
             }
             return members;
         } catch (NullPointerException e) {
+            SimpleGroupMsg.LOGGER.warn("NullPointerException occured! Is Voicechat server not initialized?");
+            SimpleGroupMsg.LOGGER.warn(Arrays.toString(e.getStackTrace()));
             return null;
         }
     }
@@ -113,12 +173,15 @@ public class ServerChatHandler {
             }
             return members;
         } catch (NullPointerException e) {
+            SimpleGroupMsg.LOGGER.warn("NullPointerException occured! Is Voicechat server not initialized?");
+            SimpleGroupMsg.LOGGER.warn(Arrays.toString(e.getStackTrace()));
             return null;
         }
     }
 
+    // 当群组类型为开放时搜寻非组员非孤立玩家
     @Nullable
-    private List<ServerPlayer> getPlayerExceptIsolatedAndNormal(ServerPlayer player) {
+    private List<ServerPlayer> getPlayerExceptIsolatedAndMember(ServerPlayer player) {
         try {
             PlayerStateManager psM = SimpleGroupMsg.voicechatServer.getServer().getPlayerStateManager();
             ServerGroupManager sgM = SimpleGroupMsg.voicechatServer.getServer().getGroupManager();
@@ -126,10 +189,12 @@ public class ServerChatHandler {
             for (PlayerState state : psM.getStates()) {
                 UUID hearerGroupID = state.getGroup();
                 if (sgM.getGroup(hearerGroupID).getType() != Group.Type.ISOLATED
-                ||  sgM.getGroup(hearerGroupID).getType() != Group.Type.NORMAL) members.add((ServerPlayer) player.serverLevel().getPlayerByUUID(hearerGroupID));
+                && !(hearerGroupID == psM.getState(player.getUUID()).getGroup())) members.add((ServerPlayer) player.serverLevel().getPlayerByUUID(hearerGroupID));
             }
             return members;
         } catch (NullPointerException e) {
+            SimpleGroupMsg.LOGGER.warn("NullPointerException occured! Is Voicechat server not initialized?");
+            SimpleGroupMsg.LOGGER.warn(Arrays.toString(e.getStackTrace()));
             return null;
         }
     }
