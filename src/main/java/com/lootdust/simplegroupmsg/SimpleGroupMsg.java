@@ -41,7 +41,7 @@ import java.util.List;
 @Mod(SimpleGroupMsg.MODID)
 public class SimpleGroupMsg {
     public static final String MODID = "simplegroupmsg";
-    private static final Logger LOGGER = LogUtils.getLogger();
+    public static final Logger LOGGER = LogUtils.getLogger();
 
     public SimpleGroupMsg()
     {

@@ -17,6 +17,7 @@ import net.minecraftforge.fml.common.Mod;
 
 import java.util.HashMap;
 import java.util.UUID;
+import java.util.logging.Logger;
 
 
 @Mod.EventBusSubscriber
@@ -114,5 +115,6 @@ public class GroupMsgPlugin implements VoicechatPlugin {
             }
         }
         event.setCanceled(true);
+        SimpleGroupMsg.LOGGER.info("Event is canceled? " + String.valueOf(event.isCanceled()));
     }
 }
