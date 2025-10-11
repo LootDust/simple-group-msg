@@ -45,6 +45,7 @@ public class GroupMsgPlugin implements VoicechatPlugin {
     private void onServerStarted(VoicechatServerStartedEvent event) {
         api = event.getVoicechat();
         api.getGroups().forEach((group -> groupTypes.put(group.getId(), group.getType())));
+        SimpleGroupMsg.LOGGER.info("Api is null? " + (api == null));
     }
 
     private void onPlayerJoinGroup(JoinGroupEvent event) {
