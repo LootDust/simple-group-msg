@@ -107,7 +107,7 @@ public class ServerChatHandler {
     private boolean isPlayerInGroup(ServerPlayer player) {
         try {
             PlayerStateManager psM = SimpleGroupMsg.voicechatServer.getServer().getPlayerStateManager();
-            return psM.getState(player.getUUID()).hasGroup();
+            return psM.getState(player.getUUID()).getGroup() != null;
         } catch (NullPointerException e) {
             SimpleGroupMsg.LOGGER.warn("NullPointerException occured! Is Voicechat server not initialized?");
             SimpleGroupMsg.LOGGER.warn(Arrays.toString(e.getStackTrace()));
@@ -169,7 +169,7 @@ public class ServerChatHandler {
             ArrayList<ServerPlayer> members = new ArrayList<>();
             for (PlayerState state : psM.getStates()) {
                 UUID hearerGroupID = state.getGroup();
-                if (sgM.getGroup(hearerGroupID).getType() != Group.Type.ISOLATED) members.add((ServerPlayer) player.serverLevel().getPlayerByUUID(hearerGroupID));
+                if (hearerGroupID == null || sgM.getGroup(hearerGroupID).getType() != Group.Type.ISOLATED) members.add((ServerPlayer) player.serverLevel().getPlayerByUUID(hearerGroupID));
             }
             return members;
         } catch (NullPointerException e) {
@@ -188,7 +188,7 @@ public class ServerChatHandler {
             ArrayList<ServerPlayer> members = new ArrayList<>();
             for (PlayerState state : psM.getStates()) {
                 UUID hearerGroupID = state.getGroup();
-                if (sgM.getGroup(hearerGroupID).getType() != Group.Type.ISOLATED
+                if (hearerGroupID == null || sgM.getGroup(hearerGroupID).getType() != Group.Type.ISOLATED
                 && !(hearerGroupID == psM.getState(player.getUUID()).getGroup())) members.add((ServerPlayer) player.serverLevel().getPlayerByUUID(hearerGroupID));
             }
             return members;
