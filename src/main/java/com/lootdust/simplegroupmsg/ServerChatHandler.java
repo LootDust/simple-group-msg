@@ -110,7 +110,7 @@ public class ServerChatHandler {
             return psM.getState(player.getUUID()).getGroup() != null;
         } catch (NullPointerException e) {
             SimpleGroupMsg.LOGGER.warn("NullPointerException occured! Is Voicechat server not initialized?");
-            SimpleGroupMsg.LOGGER.warn(Arrays.toString(e.getStackTrace()));
+            //SimpleGroupMsg.LOGGER.warn(Arrays.toString(e.getStackTrace()));
             return false;
         }
     }
@@ -122,7 +122,7 @@ public class ServerChatHandler {
             return sgM.getGroup(psM.getState(player.getUUID()).getGroup()).getName();
         } catch (NullPointerException e) {
             SimpleGroupMsg.LOGGER.warn("NullPointerException occured! Is Voicechat server not initialized?");
-            SimpleGroupMsg.LOGGER.warn(Arrays.toString(e.getStackTrace()));
+            //SimpleGroupMsg.LOGGER.warn(Arrays.toString(e.getStackTrace()));
             return "Unknown Group";
         }
     }
@@ -135,11 +135,12 @@ public class ServerChatHandler {
             return sgM.getGroup(psM.getState(player.getUUID()).getGroup()).getType();
         } catch (NullPointerException e) {
             SimpleGroupMsg.LOGGER.warn("NullPointerException occured! Is Voicechat server not initialized?");
-            SimpleGroupMsg.LOGGER.warn(Arrays.toString(e.getStackTrace()));
+            //SimpleGroupMsg.LOGGER.warn(Arrays.toString(e.getStackTrace()));
             return null;
         }
     }
 
+    // 当有群组时搜索组员
     @Nullable
     private List<ServerPlayer> getGroupMembers(ServerPlayer player) {
         try {
@@ -156,11 +157,12 @@ public class ServerChatHandler {
             return members;
         } catch (NullPointerException e) {
             SimpleGroupMsg.LOGGER.warn("NullPointerException occured! Is Voicechat server not initialized?");
-            SimpleGroupMsg.LOGGER.warn(Arrays.toString(e.getStackTrace()));
+            //SimpleGroupMsg.LOGGER.warn(Arrays.toString(e.getStackTrace()));
             return null;
         }
     }
 
+    // 当无群组时搜寻非孤立玩家
     @Nullable
     private List<ServerPlayer> getPlayerExceptIsolated(ServerPlayer player) {
         try {
@@ -169,12 +171,16 @@ public class ServerChatHandler {
             ArrayList<ServerPlayer> members = new ArrayList<>();
             for (PlayerState state : psM.getStates()) {
                 UUID hearerGroupID = state.getGroup();
-                if (hearerGroupID == null || sgM.getGroup(hearerGroupID).getType() != Group.Type.ISOLATED) members.add((ServerPlayer) player.serverLevel().getPlayerByUUID(hearerGroupID));
+                if (hearerGroupID == null) {
+                    members.add((ServerPlayer) player.serverLevel().getPlayerByUUID(state.getUuid()));
+                    continue;
+                }
+                if (sgM.getGroup(hearerGroupID).getType() != Group.Type.ISOLATED) members.add((ServerPlayer) player.serverLevel().getPlayerByUUID(state.getUuid()));
             }
             return members;
         } catch (NullPointerException e) {
             SimpleGroupMsg.LOGGER.warn("NullPointerException occured! Is Voicechat server not initialized?");
-            SimpleGroupMsg.LOGGER.warn(Arrays.toString(e.getStackTrace()));
+            //SimpleGroupMsg.LOGGER.warn(Arrays.toString(e.getStackTrace()));
             return null;
         }
     }
@@ -188,13 +194,17 @@ public class ServerChatHandler {
             ArrayList<ServerPlayer> members = new ArrayList<>();
             for (PlayerState state : psM.getStates()) {
                 UUID hearerGroupID = state.getGroup();
-                if (hearerGroupID == null || sgM.getGroup(hearerGroupID).getType() != Group.Type.ISOLATED
-                && !(hearerGroupID == psM.getState(player.getUUID()).getGroup())) members.add((ServerPlayer) player.serverLevel().getPlayerByUUID(hearerGroupID));
+                if (hearerGroupID == null) {
+                    members.add((ServerPlayer) player.serverLevel().getPlayerByUUID(state.getUuid()));
+                    continue;
+                }
+                if (sgM.getGroup(hearerGroupID).getType() != Group.Type.ISOLATED
+                && !(hearerGroupID == psM.getState(player.getUUID()).getGroup())) members.add((ServerPlayer) player.serverLevel().getPlayerByUUID(state.getUuid()));
             }
             return members;
         } catch (NullPointerException e) {
             SimpleGroupMsg.LOGGER.warn("NullPointerException occured! Is Voicechat server not initialized?");
-            SimpleGroupMsg.LOGGER.warn(Arrays.toString(e.getStackTrace()));
+            //SimpleGroupMsg.LOGGER.warn(Arrays.toString(e.getStackTrace()));
             return null;
         }
     }
