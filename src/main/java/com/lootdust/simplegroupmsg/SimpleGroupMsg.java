@@ -1,11 +1,9 @@
 package com.lootdust.simplegroupmsg;
 
 import com.mojang.logging.LogUtils;
-import de.maxhenkel.voicechat.ForgeVoicechatMod;
 import de.maxhenkel.voicechat.voice.server.ServerVoiceEvents;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegisterCommandsEvent;
-import net.minecraftforge.event.server.ServerStartingEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.ModLoadingContext;
@@ -33,7 +31,7 @@ public class SimpleGroupMsg {
     }
 
     @SubscribeEvent
-    public static void registerCommand(RegisterCommandsEvent event) {
+    public void registerCommand(RegisterCommandsEvent event) {
         ShoutCommand.register(event.getDispatcher());
     }
 

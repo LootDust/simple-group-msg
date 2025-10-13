@@ -15,12 +15,9 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
-
-@SuppressWarnings("CallToPrintStackTrace")
 public class ServerChatHandler {
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public void onServerChatEvent(ServerChatEvent event) {
