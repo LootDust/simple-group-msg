@@ -59,6 +59,7 @@ public class ServerChatHandler {
                                     )
                                 );
                     }
+                    speaker.server.sendSystemMessage(Component.literal(String.format("[System] [CHAT] <%s> %s", speaker.getName().getString(), message.getString())));
                 } else {
                     should_cancel_it = false;
                 }
@@ -82,6 +83,7 @@ public class ServerChatHandler {
                                     )
                                 );
                     }
+                    speaker.server.sendSystemMessage(Component.literal(String.format("[System] [CHAT] [%s] [%s] %s", getPlayerGroupName(speaker), speaker.getName().getString(), message.getString())));
                 } else {
                     should_cancel_it = false;
                 }
@@ -98,11 +100,11 @@ public class ServerChatHandler {
                     hearer.sendSystemMessage(Component.literal(String.format("<%s> ", speaker.getName().getString()))
                             .append(Component.literal(message.getString())));
                 }
+                speaker.server.sendSystemMessage(Component.literal(String.format("[System] [CHAT] <%s> %s", speaker.getName().getString(), message.getString())));
             } else {
                 should_cancel_it = false;
             }
         }
-        event.getPlayer().server.logChatMessage(Component.literal(String.format("%s", message.getString())), ChatType.bind(ChatType.CHAT, speaker), null);
         if (should_cancel_it) event.setCanceled(true);
     }
 
