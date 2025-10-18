@@ -24,8 +24,8 @@ public class ShoutCommand {
                             ((LivingEntity) context.getSource().source).getCustomName().getString() : ((LivingEntity) context.getSource().source).getType().toString();
                 } else {
                     for (ServerPlayer hearer : context.getSource().getLevel().getPlayers(Predicates.alwaysTrue())) {
-                        hearer.sendSystemMessage((Component.literal("[ Server: ")
-                                .append(Component.literal(MessageArgument.getMessage(context, "message").getString()).append(Component.literal(" ]")))).withStyle(ChatFormatting.DARK_GRAY).withStyle(ChatFormatting.ITALIC));
+                        hearer.sendSystemMessage((Component.literal("[Server] ")
+                                .append(Component.literal(MessageArgument.getMessage(context, "message").getString()))).withStyle(ChatFormatting.DARK_GRAY).withStyle(ChatFormatting.ITALIC));
                     }
                     return MessageArgument.getMessage(context, "message").getString().length();
                 }

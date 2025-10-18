@@ -7,13 +7,16 @@ import de.maxhenkel.voicechat.voice.common.PlayerState;
 import de.maxhenkel.voicechat.voice.server.PlayerStateManager;
 import de.maxhenkel.voicechat.voice.server.ServerGroupManager;
 import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.ChatType;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.event.ServerChatEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import javax.annotation.Nullable;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -35,6 +38,7 @@ public class ServerChatHandler {
 
         ServerPlayer speaker = event.getPlayer();
         Message message = event.getMessage();
+        ServerLevel level = event.getPlayer().serverLevel();
 
         //PlayerChatMessage chatMessage = PlayerChatMessage.unsigned(speaker.getUUID(), "This will be displayed");
         //player.createCommandSourceStack().sendChatMessage(new OutgoingChatMessage.Player(chatMessage), false, ChatType.bind(ChatType.CHAT, speaker));
@@ -98,6 +102,7 @@ public class ServerChatHandler {
                 should_cancel_it = false;
             }
         }
+        event.getPlayer().server.logChatMessage(Component.literal(String.format("%s", message.getString())), ChatType.bind(ChatType.CHAT, speaker), null);
         if (should_cancel_it) event.setCanceled(true);
     }
 
